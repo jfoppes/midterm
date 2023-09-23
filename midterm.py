@@ -1,6 +1,8 @@
 #!usr/bin/env python3
 #Jacob Foppes Midterm- Campsite Reservtions 2.0
 
+import tkinter
+import time
 
 ''' User will authenticate with a username and password or they will create one '''
 
