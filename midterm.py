@@ -45,21 +45,31 @@ def login(): #exisiting useres login
         pass
     breaker = True
     while breaker == True:
-        print("\n Create a CampRezi account \n")
-        nusername = input("Create your username: ")
-        npassword = input("Create your password: ")
-        if nusername in accounts:
-            print("Username already taken. Please Choose Another\n")
-        else:
+        print("\n Login to a CampRezi account, or type exit to return to main\n")
+        cusername = input("Enter your username: ") # Storeing username and password check if user wants to exit 
+        if cusername == "exit":
+            welcome()
+        cpassword = input("Enter your password: ")
+        if cusername not in accounts:
+            print("\n User not found. Try agian. OR Type Exit to return to the main screen \n")
+            time.sleep(1)
+        elif accounts[cusername] == cpassword: #checks username and passwrod againsts known good credentails to allow or stop login 
             global auth_usr
-            auth_usr = nusername
-            accounts[nusername] = npassword
-            with open("accounts.txt","w") as auth: #opens the accounts fike to write the new useres accou nt to the master accounts file 
-                for key, value in accounts.items():
-                    auth.write('%s %s\n' % (key, value))
-        
-            print("Account creation sucessfull. Logged in as:", nusername,"\n")
+            auth_usr = cusername
+            global auth_usrInfo
+            with open("userinfo.txt","w") as info: #opens the accounts fike to write the new useres accou nt to the master accounts file 
+                for line in info:
+                    (un,inf) = line.split()
+                    auth_usrInfo[un] = inf
+            print("\n Login Succesful \n")
+            print(auth_usrInfo)
+            print("Logged in as", auth_usr,"\n")
+            auth.close() # close username and passwrod file
             break
+        else:
+            print("\n Incorrect Login. Try agian. \n")
+            time.sleep(1)
+    print(auth_usr,"\n",auth_usrInfo)
 
 def createUsr(): # New users create accounts
     accounts = {}
@@ -95,10 +105,7 @@ def createUsr(): # New users create accounts
                 auth_usrInfo = uInfo
             print("Account creation sucessfull. Logged in as: ", nusername,"\n")
             break
-welcome()
-while True:
-    
-    break
+
 
 '''User will be able to view available sites and choose one to reserve, or cancel a reservation '''
 def view(): # 
@@ -110,5 +117,22 @@ def reserve(): # reserve will be able to input the day they want to reserve and 
 def cancel():
     pass
 
-while True: # while look for reservation system
-    break
+welcome()
+while True:
+    print("Hello ",auth_usrInfo['first']," what yould you like to do\n")
+    choice = input("View reservations: 'View'\n Create Reservation: 'New'\n Cancel Reselvation: 'Cancel'\n Exit: 'Exit'").lower()
+    if choice == "view":
+        view()
+        continue
+    elif choice == "new":
+        reserve()
+        continue
+    elif choice == "cancel":
+        cancel()
+        continue
+    elif choice == "exit":
+        welcome()
+        break
+    else: 
+        print("Please enter a valid choice")
+        continue
