@@ -21,7 +21,23 @@ auth_usrInfo = {} # dictionary of autherized user info
 owd = os.getcwd()
 
 def welcome(): # User greeted with login or create new account option 
-    print("\n\nSecure Drive")
+    print("\n\nCamp Rezi")
+    global welcomeW
+    welcomeW = tkinter.Tk()
+    welcomeW.title("CampRezi Welcome")
+    welcomeW.geometry("500x500")
+    welcomeW.configure(bg = "#333333")
+    wframe = tkinter.Frame(bg = "#333333")
+
+    welcomeLab = tkinter.Label(wframe, text = "Welcome to CampRezi!\n Login or Make an account",bg = "#333333",fg = "#FFFFFF", font=("Ariel",20))
+    welcomeBut1 = tkinter.Button(wframe, text = "Login", bg = "#000000",command = login)
+    welcomeBut2 = tkinter.Button(wframe, text = "New Account",command= createUsr)
+
+    welcomeLab.grid(row = 0, column = 0,columnspan= 2, sticky = "news",pady=40)
+    welcomeBut1.grid(row = 4, column = 0)
+    welcomeBut2.grid(row = 4, column = 2)
+    wframe.pack()
+    welcomeW.mainloop()
     while True: # this while loop will handle user input and call login/ new account functions
         action = input("\nWelcome to CampRezi!\n \n What would you like to do? \n \n Login? or create an account?\n\n Type 'Login' or 'New'\n\n").lower()
         if action == "login":
@@ -36,8 +52,37 @@ def welcome(): # User greeted with login or create new account option
             print("Please enter a valid choice")
     pass
 
-def login(): #exisiting useres login 
+def login(): #exisiting useres login
+    welcomeW.destroy()
+    loginW = tkinter.Tk()# define login window 
+    loginW.title("CampRezi Login") #login window title 
+    loginW.geometry("500x500") #window size 
+    lframe = tkinter.Frame(bg = "#333333")
+    loginW.configure(bg = "#333333")#window color 
+    
+    loginLabel = tkinter.Label(lframe, text = "Enter your Credietials",bg = "#333333",fg = "#FFFFFF",font=("Ariel",20))# create label in window 
+    loginUNT = tkinter.Label(lframe, text = "Username",bg = "#333333",fg = "#FFFFFF",font=("Ariel",14))
+    loginPWT = tkinter.Label(lframe, text = "Password",bg = "#333333",fg = "#FFFFFF",font=("Ariel",14))
+    loginUN = tkinter.Entry(lframe)
+    loginPW = tkinter.Entry(lframe, show="*")
+    loginBut = tkinter.Button(lframe, text = "Login")
+    back = tkinter.Button(lframe, text = "Back", command=lambda:[loginW.destroy(),welcome()])
+
+    loginLabel.grid(row = 0, column = 0,columnspan=2,pady = 15)
+    loginUNT.grid(row=1, column=0,pady=15)
+    loginPWT.grid(row=2,column=0)
+    loginUN.grid(row=1,column=1)
+    loginPW.grid(row=2,column=1,pady = 15)
+    loginBut.grid(row=3,column=0,columnspan=2)
+    back.grid(row= 4,column=4)
+
+
+    lframe.pack()
+    loginW.mainloop() ### This is a blocking function 
+    
+    
     accounts = {}
+    
     with open("accounts.txt") as auth:
         for line in auth:
             (usr,pw) = line.split()# Create tuple of username/pw combo 
@@ -70,7 +115,6 @@ def login(): #exisiting useres login
             print("\n Incorrect Login. Try agian. \n")
             time.sleep(1)
     print(auth_usr,"\n",auth_usrInfo)
-
 def createUsr(): # New users create accounts
     accounts = {}
     with open("accounts.txt") as auth:
@@ -117,8 +161,11 @@ def reserve(): # reserve will be able to input the day they want to reserve and 
 def cancel():
     pass
 
+
+
 welcome()
-while True:
+
+'''while True:
     print("Hello ",auth_usrInfo['first']," what yould you like to do\n")
     choice = input("View reservations: 'View'\n Create Reservation: 'New'\n Cancel Reselvation: 'Cancel'\n Exit: 'Exit'").lower()
     if choice == "view":
@@ -136,3 +183,5 @@ while True:
     else: 
         print("Please enter a valid choice")
         continue
+    
+'''
