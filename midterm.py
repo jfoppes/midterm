@@ -6,6 +6,7 @@ import time
 import os
 import sys
 from pathlib import Path
+import json
 ''' This program will enhace the reservation ysstemn i created for a previous project. It will store reservationa in  a master file. 
 The master file will be imported as a dictionary.
 EX {2023-05-19:jfoppes, 2023-05-20:jfoppes, 2023-05-30:timmyB}
@@ -19,9 +20,33 @@ progrma will use tkinter to create window with picture of campsites
 auth_usr = ""
 auth_usrInfo = {} # dictionary of autherized user info 
 owd = os.getcwd()
+def loby():
+    while True:
+        print("Hello ",auth_usrInfo['first']," what yould you like to do\n")
+        choice = input("View reservations: 'View'\n Create Reservation: 'New'\n Cancel Reselvation: 'Cancel'\n Exit: 'Exit'").lower()
+        if choice == "view":
+            view()
+            continue
+        elif choice == "new":
+            reserve()
+            continue
+        elif choice == "cancel":
+            cancel()
+            continue
+        elif choice == "exit":
+            welcome()
+            break
+        else: 
+            print("Please enter a valid choice")
+            continue
 
 def welcome(): # User greeted with login or create new account option 
     print("\n\nCamp Rezi")
+    global auth_usr 
+    global auth_usrInfo
+    auth_usr = ""
+    auth_usrInfo = {}
+    
     global welcomeW
     welcomeW = tkinter.Tk()
     welcomeW.title("CampRezi Welcome")
@@ -31,7 +56,7 @@ def welcome(): # User greeted with login or create new account option
 
     welcomeLab = tkinter.Label(wframe, text = "Welcome to CampRezi!\n Login or Make an account",bg = "#333333",fg = "#FFFFFF", font=("Ariel",20))
     welcomeBut1 = tkinter.Button(wframe, text = "Login", bg = "#000000",command = login)
-    welcomeBut2 = tkinter.Button(wframe, text = "New Account",command= createUsr)
+    welcomeBut2 = tkinter.Button(wframe, text = "New Account",command= lambda: [welcomeW.destroy(),createUsr()])
 
     welcomeLab.grid(row = 0, column = 0,columnspan= 2, sticky = "news",pady=40)
     welcomeBut1.grid(row = 4, column = 0)
@@ -45,6 +70,7 @@ def welcome(): # User greeted with login or create new account option
             break        
         elif action == "new":
             createUsr()
+            
             break
         elif action == "exit":
             break
@@ -65,7 +91,8 @@ def login(): #exisiting useres login
     loginPWT = tkinter.Label(lframe, text = "Password",bg = "#333333",fg = "#FFFFFF",font=("Ariel",14))
     loginUN = tkinter.Entry(lframe)
     loginPW = tkinter.Entry(lframe, show="*")
-    loginBut = tkinter.Button(lframe, text = "Login")
+   # print(cusername,cpassword)
+    loginBut = tkinter.Button(lframe, text = "Login",command=lambda: [chklogin(loginUN.get(),loginPW.get())])
     back = tkinter.Button(lframe, text = "Back", command=lambda:[loginW.destroy(),welcome()])
 
     loginLabel.grid(row = 0, column = 0,columnspan=2,pady = 15)
@@ -79,42 +106,42 @@ def login(): #exisiting useres login
 
     lframe.pack()
     loginW.mainloop() ### This is a blocking function 
-    
-    
+def chklogin(cusername,cpassword):
+    #print(cusername,cpassword)
     accounts = {}
-    
     with open("accounts.txt") as auth:
-        for line in auth:
+        for line in auth: 
             (usr,pw) = line.split()# Create tuple of username/pw combo 
             accounts[(usr)] = pw #break the tuple in to doctiuonary key,value
         pass
-    breaker = True
-    while breaker == True:
-        print("\n Login to a CampRezi account, or type exit to return to main\n")
-        cusername = input("Enter your username: ") # Storeing username and password check if user wants to exit 
-        if cusername == "exit":
-            welcome()
-        cpassword = input("Enter your password: ")
-        if cusername not in accounts:
-            print("\n User not found. Try agian. OR Type Exit to return to the main screen \n")
-            time.sleep(1)
-        elif accounts[cusername] == cpassword: #checks username and passwrod againsts known good credentails to allow or stop login 
-            global auth_usr
-            auth_usr = cusername
-            global auth_usrInfo
-            with open("userinfo.txt","w") as info: #opens the accounts fike to write the new useres accou nt to the master accounts file 
-                for line in info:
-                    (un,inf) = line.split()
-                    auth_usrInfo[un] = inf
-            print("\n Login Succesful \n")
-            print(auth_usrInfo)
-            print("Logged in as", auth_usr,"\n")
-            auth.close() # close username and passwrod file
-            break
-        else:
-            print("\n Incorrect Login. Try agian. \n")
-            time.sleep(1)
+    print("\n Login to a CampRezi account, or type exit to return to main\n")
+    if cusername not in accounts:
+        print("\n User not found. Try agian. OR Type Exit to return to the main screen \n")
+        time.sleep(1)
+    elif accounts[cusername] == cpassword: #checks username and passwrod againsts known good credentails to allow or stop login 
+        global auth_usr
+        auth_usr = cusername
+        global auth_usrInfo
+        with open("userinfo.txt","r") as info: #opens the accounts fike to read the new accoun t info
+            users = {} 
+            for line in info: # reading user info file and adding it to dict of users:userinfo
+                line = line.replace("\'", "\"")
+                (un,inf) = line.split(" ", 1)
+                inf = json.loads(inf) #intitate the values in inf as dict insterad of string
+                users[(un)] = inf #string key in the dictionary users has value of the inf dicationary for that user 
+            for cusername in users: # for the authenticated user: find thier entry in the users DICT and make it that authorized user info
+                (un,inf) = line.split(" ", 1)
+                inf = json.loads(inf)
+                auth_usrInfo = inf            
+        print("\n Login Succesful \n")
+        print("Logged in as", auth_usr,"\n")
+        auth.close() # close username and passwrod file
+        loby()
+    else:
+        print("\n Incorrect Login. Try agian. \n")
+        time.sleep(1)
     print(auth_usr,"\n",auth_usrInfo)
+    
 def createUsr(): # New users create accounts
     accounts = {}
     with open("accounts.txt") as auth:
@@ -137,17 +164,18 @@ def createUsr(): # New users create accounts
                 for key, value in accounts.items():
                     auth.write('%s %s\n' % (key, value))
             print("We need some basic info to finish your account")
-            with open("userinfo.txt", "w") as info:
+            with open("userinfo.txt", "a") as info:
                 uInfo = {}
                 uInfo['username'] = auth_usr
                 uInfo['first'] = input("Enter your first name: ")
                 uInfo['last'] = input("Enter your last name: ")
                 uInfo['phone'] = input("Enter your phone number with no spaces or dashes: ")
-                info.write('%s %s \n' % (auth_usr, uInfo))
+                info.write('%s %s\n' % (auth_usr, uInfo))
                 time.sleep(.5)
                 global auth_usrInfo
                 auth_usrInfo = uInfo
             print("Account creation sucessfull. Logged in as: ", nusername,"\n")
+            loby()
             break
 
 
@@ -165,23 +193,6 @@ def cancel():
 
 welcome()
 
-'''while True:
-    print("Hello ",auth_usrInfo['first']," what yould you like to do\n")
-    choice = input("View reservations: 'View'\n Create Reservation: 'New'\n Cancel Reselvation: 'Cancel'\n Exit: 'Exit'").lower()
-    if choice == "view":
-        view()
-        continue
-    elif choice == "new":
-        reserve()
-        continue
-    elif choice == "cancel":
-        cancel()
-        continue
-    elif choice == "exit":
-        welcome()
-        break
-    else: 
-        print("Please enter a valid choice")
-        continue
+'''
     
 '''
