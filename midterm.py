@@ -20,27 +20,27 @@ progrma will use tkinter to create window with picture of campsites
 auth_usr = ""
 auth_usrInfo = {} # dictionary of autherized user info 
 owd = os.getcwd()
-def lobyWin():
-    pass
+
 def loby():
-    while True:
-        print("Hello ",auth_usrInfo['first']," what yould you like to do\n")
-        choice = input("View reservations: 'View'\n Create Reservation: 'New'\n Cancel Reselvation: 'Cancel'\n Exit: 'Exit'").lower()
-        if choice == "view":
-            view()
-            continue
-        elif choice == "new":
-            reserve()
-            continue
-        elif choice == "cancel":
-            cancel()
-            continue
-        elif choice == "exit":
-            welcome()
-            break
-        else: 
-            print("Please enter a valid choice")
-            continue
+    lobyW = tkinter.Tk()
+    lobyW.title("CampRezi Welcome")
+    lobyW.geometry("500x500")
+    lobyW.configure(bg = "#333333")
+    lobframe = tkinter.Frame(bg = "#333333")
+
+    lobLab = tkinter.Label(lobframe, text = ("Hello "+ auth_usrInfo['first']+"!\n\nWelcome to CampRezi,\n Login or Make an account"),bg = "#333333",fg = "#FFFFFF", font=("Ariel",20))
+    lobBut1 = tkinter.Button(lobframe, text = "View Available Sites", bg = "#000000",command = view)
+    lobBut2 = tkinter.Button(lobframe, text = "New Reservation",command= reserve)
+    lobBut3 = tkinter.Button(lobframe, text = "Cancel Reservation",command= cancel)
+    back = tkinter.Button(lobframe, text = "Back", command=lambda:[lobyW.destroy(),welcome()])
+    
+    lobLab.grid(row = 0, column = 0,columnspan= 2, sticky = "news",pady=40)
+    lobBut1.grid(row = 2, column = 1)
+    lobBut2.grid(row = 3, column = 1,pady = 10)
+    lobBut3.grid(row = 4, column = 1)
+    back.grid(row= 5,column=4)
+    lobframe.pack()
+    lobyW.mainloop()
 
 def welcome(): # User greeted with login or create new account option 
     print("\n\nCamp Rezi")
@@ -57,7 +57,7 @@ def welcome(): # User greeted with login or create new account option
     wframe = tkinter.Frame(bg = "#333333")
 
     welcomeLab = tkinter.Label(wframe, text = "Welcome to CampRezi!\n Login or Make an account",bg = "#333333",fg = "#FFFFFF", font=("Ariel",20))
-    welcomeBut1 = tkinter.Button(wframe, text = "Login", bg = "#000000",command = login)
+    welcomeBut1 = tkinter.Button(wframe, text = "Login", bg = "#000000",command =lambda:[welcomeW.destroy(),login()])
     welcomeBut2 = tkinter.Button(wframe, text = "New Account",command= lambda: [welcomeW.destroy(),createUsrWin()])
 
     welcomeLab.grid(row = 0, column = 0,columnspan= 2, sticky = "news",pady=40)
@@ -81,20 +81,20 @@ def welcome(): # User greeted with login or create new account option
     pass
 
 def login(): #exisiting useres login window
-    welcomeW.destroy()
+    global loginW
     loginW = tkinter.Tk()# define login window 
     loginW.title("CampRezi Login") #login window title 
     loginW.geometry("500x500") #window size 
     lframe = tkinter.Frame(bg = "#333333")
     loginW.configure(bg = "#333333")#window color 
-    
+   
     loginLabel = tkinter.Label(lframe, text = "Enter your Credietials",bg = "#333333",fg = "#FFFFFF",font=("Ariel",20))# create label in window 
     loginUNT = tkinter.Label(lframe, text = "Username",bg = "#333333",fg = "#FFFFFF",font=("Ariel",14))
     loginPWT = tkinter.Label(lframe, text = "Password",bg = "#333333",fg = "#FFFFFF",font=("Ariel",14))
     loginUN = tkinter.Entry(lframe)
     loginPW = tkinter.Entry(lframe, show="*")
    # print(cusername,cpassword)
-    loginBut = tkinter.Button(lframe, text = "Login",command=lambda: [chklogin(loginUN.get(),loginPW.get()),loginW.destroy(),loby()])
+    loginBut = tkinter.Button(lframe, text = "Login",command=lambda: [chklogin(loginUN.get(),loginPW.get()),loginW.destroy()])
     back = tkinter.Button(lframe, text = "Back", command=lambda:[loginW.destroy(),welcome()])
 
     loginLabel.grid(row = 0, column = 0,columnspan=2,pady = 15)
@@ -118,8 +118,9 @@ def chklogin(cusername,cpassword): # checks login credntials
         pass
     print("\n Login to a CampRezi account, or type exit to return to main\n")
     if cusername not in accounts:
-        print("\n User not found. Try agian. OR Type Exit to return to the main screen \n")
-        time.sleep(1)
+        loginW.destroy()
+        error("Looks look that account does not exit, try agin!")
+        login()
     elif accounts[cusername] == cpassword: #checks username and passwrod againsts known good credentails to allow or stop login 
         global auth_usr
         auth_usr = cusername
@@ -138,14 +139,17 @@ def chklogin(cusername,cpassword): # checks login credntials
         print("\n Login Succesful \n")
         print("Logged in as", auth_usr,"\n")
         auth.close() # close username and passwrod file
+        loginW.destroy()
+        loby()
     else:
-        print("\n Incorrect Login. Try agian. \n")
-        time.sleep(1)
-    print(auth_usr,"\n",auth_usrInfo)
+        loginW.destroy()
+        error("Wrong password try agin!")
+        login()
     
 def createUsrWin(): # New users create accounts
+    global mkaccW
     mkaccW = tkinter.Tk()# define login window 
-    mkaccW.title("CampRezi new") #login window title 
+    mkaccW.title("CampRezi New User") #login window title 
     mkaccW.geometry("500x500") #window size 
     mkaccframe = tkinter.Frame(bg = "#333333")
     mkaccW.configure(bg = "#333333")#window color 
@@ -163,7 +167,7 @@ def createUsrWin(): # New users create accounts
     newUN = tkinter.Entry(mkaccframe)
     newPW = tkinter.Entry(mkaccframe, show="*")
    # print(cusername,cpassword)
-    loginBut = tkinter.Button(mkaccframe, text = "Login",command=lambda: [createUsr(newFirst.get(),newLast.get(),newNum.get(),newUN.get(),newPW.get()),mkaccW.destroy(),lobyWin()])
+    loginBut = tkinter.Button(mkaccframe, text = "Login",command=lambda: [createUsr(newFirst.get(),newLast.get(),newNum.get(),newUN.get(),newPW.get()),mkaccW.destroy(),loby()])
     back = tkinter.Button(mkaccframe, text = "Back", command=lambda:[mkaccW.destroy(),welcome()])
 
     mkaccLabel.grid(row = 0, column = 0,columnspan=2,pady = 15)
@@ -192,11 +196,12 @@ def createUsr(first,last,num,un,pasw):
         pass
     breaker = True
     while breaker == True:
-        print("\n Create a CampReszi account \n")
         nusername = un
         npassword = pasw
         if nusername in accounts:
-            print("Username already taken. Please Choose Another\n")
+            mkaccW.destroy()
+            error("Looks look that account already exits, try agin!")
+            createUsrWin()
         else:
             global auth_usr
             auth_usr = nusername
@@ -221,15 +226,29 @@ def createUsr(first,last,num,un,pasw):
 
 '''User will be able to view available sites and choose one to reserve, or cancel a reservation '''
 def view(): # 
-    pass
+    print("View Reservations:")
+    
 
 def reserve(): # reserve will be able to input the day they want to reserve and it will be stored in a dictionary in a file local to the program 
-    pass
+    print("New Reservation ")
 
 def cancel():
-    pass
+    print("Cancel Reservation ")
 
+def error(message):
+    errorW = tkinter.Tk()
+    errorW.title("OOPS!")
+    errorW.geometry("")
+    errorW.configure(bg = "#333333")
+    eframe = tkinter.Frame(bg = "#333333")
 
+    errorlab= tkinter.Label(eframe, text = message,bg = "#333333",fg = "#FFFFFF", font=("Ariel",20))
+    okBut = tkinter.Button(eframe, text = "Try again.",command= errorW.destroy)
+
+    errorlab.grid(row = 0, column = 0,columnspan= 2, sticky = "news",pady=20,padx = 30)
+    okBut.grid(row = 1, column = 0,pady=20,padx=40)
+    eframe.pack(expand = True, fill="both")
+    errorW.mainloop()
 
 welcome()
 
