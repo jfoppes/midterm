@@ -20,6 +20,8 @@ progrma will use tkinter to create window with picture of campsites
 auth_usr = ""
 auth_usrInfo = {} # dictionary of autherized user info 
 owd = os.getcwd()
+def lobyWin():
+    pass
 def loby():
     while True:
         print("Hello ",auth_usrInfo['first']," what yould you like to do\n")
@@ -56,7 +58,7 @@ def welcome(): # User greeted with login or create new account option
 
     welcomeLab = tkinter.Label(wframe, text = "Welcome to CampRezi!\n Login or Make an account",bg = "#333333",fg = "#FFFFFF", font=("Ariel",20))
     welcomeBut1 = tkinter.Button(wframe, text = "Login", bg = "#000000",command = login)
-    welcomeBut2 = tkinter.Button(wframe, text = "New Account",command= lambda: [welcomeW.destroy(),createUsr()])
+    welcomeBut2 = tkinter.Button(wframe, text = "New Account",command= lambda: [welcomeW.destroy(),createUsrWin()])
 
     welcomeLab.grid(row = 0, column = 0,columnspan= 2, sticky = "news",pady=40)
     welcomeBut1.grid(row = 4, column = 0)
@@ -78,7 +80,7 @@ def welcome(): # User greeted with login or create new account option
             print("Please enter a valid choice")
     pass
 
-def login(): #exisiting useres login
+def login(): #exisiting useres login window
     welcomeW.destroy()
     loginW = tkinter.Tk()# define login window 
     loginW.title("CampRezi Login") #login window title 
@@ -92,7 +94,7 @@ def login(): #exisiting useres login
     loginUN = tkinter.Entry(lframe)
     loginPW = tkinter.Entry(lframe, show="*")
    # print(cusername,cpassword)
-    loginBut = tkinter.Button(lframe, text = "Login",command=lambda: [chklogin(loginUN.get(),loginPW.get())])
+    loginBut = tkinter.Button(lframe, text = "Login",command=lambda: [chklogin(loginUN.get(),loginPW.get()),loginW.destroy(),loby()])
     back = tkinter.Button(lframe, text = "Back", command=lambda:[loginW.destroy(),welcome()])
 
     loginLabel.grid(row = 0, column = 0,columnspan=2,pady = 15)
@@ -106,7 +108,7 @@ def login(): #exisiting useres login
 
     lframe.pack()
     loginW.mainloop() ### This is a blocking function 
-def chklogin(cusername,cpassword):
+def chklogin(cusername,cpassword): # checks login credntials 
     #print(cusername,cpassword)
     accounts = {}
     with open("accounts.txt") as auth:
@@ -136,13 +138,52 @@ def chklogin(cusername,cpassword):
         print("\n Login Succesful \n")
         print("Logged in as", auth_usr,"\n")
         auth.close() # close username and passwrod file
-        loby()
     else:
         print("\n Incorrect Login. Try agian. \n")
         time.sleep(1)
     print(auth_usr,"\n",auth_usrInfo)
     
-def createUsr(): # New users create accounts
+def createUsrWin(): # New users create accounts
+    mkaccW = tkinter.Tk()# define login window 
+    mkaccW.title("CampRezi new") #login window title 
+    mkaccW.geometry("500x500") #window size 
+    mkaccframe = tkinter.Frame(bg = "#333333")
+    mkaccW.configure(bg = "#333333")#window color 
+    
+    mkaccLabel = tkinter.Label(mkaccframe, text = "Let Make you an Account!",bg = "#333333",fg = "#FFFFFF",font=("Ariel",20))# create label in window 
+    mkaccLabel2 = tkinter.Label(mkaccframe, text = "Enter your information below",bg = "#333333",fg = "#FFFFFF",font=("Ariel",16))
+    newFirstT =  tkinter.Label(mkaccframe, text = "First Name",bg = "#333333",fg = "#FFFFFF",font=("Ariel",14))
+    newLastT =  tkinter.Label(mkaccframe, text = "Last Name",bg = "#333333",fg = "#FFFFFF",font=("Ariel",14))
+    newNumT =  tkinter.Label(mkaccframe, text = "Phone Number",bg = "#333333",fg = "#FFFFFF",font=("Ariel",14))
+    newUNT = tkinter.Label(mkaccframe, text = "Username",bg = "#333333",fg = "#FFFFFF",font=("Ariel",14))
+    newPWT = tkinter.Label(mkaccframe, text = "Password",bg = "#333333",fg = "#FFFFFF",font=("Ariel",14))
+    newFirst = tkinter.Entry(mkaccframe)
+    newLast = tkinter.Entry(mkaccframe)
+    newNum = tkinter.Entry(mkaccframe)
+    newUN = tkinter.Entry(mkaccframe)
+    newPW = tkinter.Entry(mkaccframe, show="*")
+   # print(cusername,cpassword)
+    loginBut = tkinter.Button(mkaccframe, text = "Login",command=lambda: [createUsr(newFirst.get(),newLast.get(),newNum.get(),newUN.get(),newPW.get()),mkaccW.destroy(),lobyWin()])
+    back = tkinter.Button(mkaccframe, text = "Back", command=lambda:[mkaccW.destroy(),welcome()])
+
+    mkaccLabel.grid(row = 0, column = 0,columnspan=2,pady = 15)
+    mkaccLabel2.grid(row = 1, column = 0,columnspan=2,pady = 15)
+    newFirstT.grid(row=2, column=0,pady=15)
+    newLastT.grid(row=3, column=0)
+    newNumT.grid(row=4, column=0,pady=15)
+    newUNT.grid(row=5, column=0)
+    newPWT.grid(row=6,column=0,pady =15 )
+    newFirst.grid(row=2,column=1)
+    newLast.grid(row=3,column=1,pady=15)
+    newNum.grid(row=4,column=1)
+    newUN.grid(row=5,column=1,pady = 15)
+    newPW.grid(row=6,column=1)
+    loginBut.grid(row=7,column=0,columnspan=2)
+    back.grid(row= 8,column=4)
+    mkaccframe.pack()
+    
+    mkaccW.mainloop()
+def createUsr(first,last,num,un,pasw):  
     accounts = {}
     with open("accounts.txt") as auth:
         for line in auth:
@@ -152,8 +193,8 @@ def createUsr(): # New users create accounts
     breaker = True
     while breaker == True:
         print("\n Create a CampReszi account \n")
-        nusername = input("Create your username: ")
-        npassword = input("Create your password: ")
+        nusername = un
+        npassword = pasw
         if nusername in accounts:
             print("Username already taken. Please Choose Another\n")
         else:
@@ -163,19 +204,18 @@ def createUsr(): # New users create accounts
             with open("accounts.txt","w") as auth: #opens the accounts fike to write the new useres accou nt to the master accounts file 
                 for key, value in accounts.items():
                     auth.write('%s %s\n' % (key, value))
-            print("We need some basic info to finish your account")
             with open("userinfo.txt", "a") as info:
                 uInfo = {}
                 uInfo['username'] = auth_usr
-                uInfo['first'] = input("Enter your first name: ")
-                uInfo['last'] = input("Enter your last name: ")
-                uInfo['phone'] = input("Enter your phone number with no spaces or dashes: ")
+                uInfo['first'] = first
+                uInfo['last'] = last
+                uInfo['phone'] = num
                 info.write('%s %s\n' % (auth_usr, uInfo))
                 time.sleep(.5)
                 global auth_usrInfo
                 auth_usrInfo = uInfo
-            print("Account creation sucessfull. Logged in as: ", nusername,"\n")
-            loby()
+            print("Your Info : \n Name: ", auth_usrInfo["first"],auth_usrInfo["last"], "\nContact Numnber: ", auth_usrInfo['phone'])
+            print("Account creation sucessfull. Logged in as: ", auth_usrInfo['username'],"\n")
             break
 
 
