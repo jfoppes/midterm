@@ -7,6 +7,7 @@ import os
 import sys
 from pathlib import Path
 import json
+import copy 
 ''' This program will enhace the reservation ysstemn i created for a previous project. It will store reservationa in  a master file. 
 The master file will be imported as a dictionary.
 EX {2023-05-19:jfoppes, 2023-05-20:jfoppes, 2023-05-30:timmyB}
@@ -20,6 +21,22 @@ progrma will use tkinter to create window with picture of campsites
 auth_usr = ""
 auth_usrInfo = {} # dictionary of autherized user info 
 owd = os.getcwd()
+allsites = []# Defeine sites and reservations 
+available = []
+reserved = {}
+
+
+with open("allsites.txt") as alls: #import allsites list from file
+    for line in alls:
+        allsites.append(line.rstrip()) 
+        
+with open("reservations.txt", "r") as rezis: #Import reserved sites list from file 
+    for line in rezis:
+        line = line.rstrip()
+        (s,u) = line.split(" ", 1)
+        reserved[(s)]=u # update site dictionary with site as key and person who reved as value
+available = list(set(allsites) - set(reserved.values())) #the diffenrce between all sites and reserved sites is avaible sites      
+ 
 
 def loby():
     lobyW = tkinter.Tk()
@@ -30,7 +47,7 @@ def loby():
 
     lobLab = tkinter.Label(lobframe, text = ("Hello "+ auth_usrInfo['first']+"!\n\nWelcome to CampRezi,\n Login or Make an account"),bg = "#333333",fg = "#FFFFFF", font=("Ariel",20))
     lobBut1 = tkinter.Button(lobframe, text = "View Available Sites", bg = "#000000",command = view)
-    lobBut2 = tkinter.Button(lobframe, text = "New Reservation",command= reserve)
+    lobBut2 = tkinter.Button(lobframe, text = "New Reservation",command=lambda:[lobyW.destroy(), resWin()])
     lobBut3 = tkinter.Button(lobframe, text = "Cancel Reservation",command= cancel)
     back = tkinter.Button(lobframe, text = "Back", command=lambda:[lobyW.destroy(),welcome()])
     
@@ -44,27 +61,28 @@ def loby():
 
 def welcome(): # User greeted with login or create new account option 
     print("\n\nCamp Rezi")
+    print(allsites)
     global auth_usr 
     global auth_usrInfo
     auth_usr = ""
     auth_usrInfo = {}
     
     global welcomeW
-    welcomeW = tkinter.Tk()
+    welcomeW = tkinter.Tk()# create tkinter window
     welcomeW.title("CampRezi Welcome")
     welcomeW.geometry("500x500")
     welcomeW.configure(bg = "#333333")
     wframe = tkinter.Frame(bg = "#333333")
 
-    welcomeLab = tkinter.Label(wframe, text = "Welcome to CampRezi!\n Login or Make an account",bg = "#333333",fg = "#FFFFFF", font=("Ariel",20))
-    welcomeBut1 = tkinter.Button(wframe, text = "Login", bg = "#000000",command =lambda:[welcomeW.destroy(),login()])
-    welcomeBut2 = tkinter.Button(wframe, text = "New Account",command= lambda: [welcomeW.destroy(),createUsrWin()])
+    welcomeLab = tkinter.Label(wframe, text = "Welcome to CampRezi!\n Login or Make an account",bg = "#333333",fg = "#FFFFFF", font=("Ariel",20)) # add labels and button to tkinter window 
+    welcomeBut1 = tkinter.Button(wframe, text = "Login", bg = "#000000",command =lambda:[welcomeW.destroy(),login()]) # button lauches login window/fucntions and closes welcome winmdow 
+    welcomeBut2 = tkinter.Button(wframe, text = "New Account",command= lambda: [welcomeW.destroy(),createUsrWin()]) #button laucned new account window/function and clsoese welcome window 
 
-    welcomeLab.grid(row = 0, column = 0,columnspan= 2, sticky = "news",pady=40)
+    welcomeLab.grid(row = 0, column = 0,columnspan= 2, sticky = "news",pady=40) # "pysically" place objects in tkiner window 
     welcomeBut1.grid(row = 4, column = 0)
     welcomeBut2.grid(row = 4, column = 2)
     wframe.pack()
-    welcomeW.mainloop()
+    welcomeW.mainloop() # window lives off od this loop
     while True: # this while loop will handle user input and call login/ new account functions
         action = input("\nWelcome to CampRezi!\n \n What would you like to do? \n \n Login? or create an account?\n\n Type 'Login' or 'New'\n\n").lower()
         if action == "login":
@@ -107,7 +125,7 @@ def login(): #exisiting useres login window
 
 
     lframe.pack()
-    loginW.mainloop() ### This is a blocking function 
+    loginW.mainloop() ### This is a blocking function nothing after this line will run untill mainloops is loginW is destroyed 
 def chklogin(cusername,cpassword): # checks login credntials 
     #print(cusername,cpassword)
     accounts = {}
@@ -156,7 +174,7 @@ def createUsrWin(): # New users create accounts
     
     mkaccLabel = tkinter.Label(mkaccframe, text = "Let Make you an Account!",bg = "#333333",fg = "#FFFFFF",font=("Ariel",20))# create label in window 
     mkaccLabel2 = tkinter.Label(mkaccframe, text = "Enter your information below",bg = "#333333",fg = "#FFFFFF",font=("Ariel",16))
-    newFirstT =  tkinter.Label(mkaccframe, text = "First Name",bg = "#333333",fg = "#FFFFFF",font=("Ariel",14))
+    newFirstT =  tkinter.Label(mkaccframe, text = "First Name",bg = "#333333",fg = "#FFFFFF",font=("Ariel",14)) #reatig text feilds in wondow 
     newLastT =  tkinter.Label(mkaccframe, text = "Last Name",bg = "#333333",fg = "#FFFFFF",font=("Ariel",14))
     newNumT =  tkinter.Label(mkaccframe, text = "Phone Number",bg = "#333333",fg = "#FFFFFF",font=("Ariel",14))
     newUNT = tkinter.Label(mkaccframe, text = "Username",bg = "#333333",fg = "#FFFFFF",font=("Ariel",14))
@@ -167,7 +185,7 @@ def createUsrWin(): # New users create accounts
     newUN = tkinter.Entry(mkaccframe)
     newPW = tkinter.Entry(mkaccframe, show="*")
    # print(cusername,cpassword)
-    loginBut = tkinter.Button(mkaccframe, text = "Login",command=lambda: [createUsr(newFirst.get(),newLast.get(),newNum.get(),newUN.get(),newPW.get()),mkaccW.destroy(),loby()])
+    loginBut = tkinter.Button(mkaccframe, text = "Login",command=lambda: [createUsr(newFirst.get(),newLast.get(),newNum.get(),newUN.get(),newPW.get()),mkaccW.destroy(),loby()]) # run the mkuser fucntion with the information entered into the windo on press of this button , then run the loby function 
     back = tkinter.Button(mkaccframe, text = "Back", command=lambda:[mkaccW.destroy(),welcome()])
 
     mkaccLabel.grid(row = 0, column = 0,columnspan=2,pady = 15)
@@ -187,7 +205,7 @@ def createUsrWin(): # New users create accounts
     mkaccframe.pack()
     
     mkaccW.mainloop()
-def createUsr(first,last,num,un,pasw):  
+def createUsr(first,last,num,un,pasw):  # these variables are passed to this fucntion form the create account window in the new user function 
     accounts = {}
     with open("accounts.txt") as auth:
         for line in auth:
@@ -215,10 +233,10 @@ def createUsr(first,last,num,un,pasw):
                 uInfo['first'] = first
                 uInfo['last'] = last
                 uInfo['phone'] = num
-                info.write('%s %s\n' % (auth_usr, uInfo))
+                info.write('%s %s\n' % (auth_usr, uInfo)) # write the collected user info to the userinfo file 
                 time.sleep(.5)
                 global auth_usrInfo
-                auth_usrInfo = uInfo
+                auth_usrInfo = uInfo # the acount that was jsut created is now the authrized user 
             print("Your Info : \n Name: ", auth_usrInfo["first"],auth_usrInfo["last"], "\nContact Numnber: ", auth_usrInfo['phone'])
             print("Account creation sucessfull. Logged in as: ", auth_usrInfo['username'],"\n")
             break
@@ -227,15 +245,84 @@ def createUsr(first,last,num,un,pasw):
 '''User will be able to view available sites and choose one to reserve, or cancel a reservation '''
 def view(): # 
     print("View Reservations:")
+    print("\n Our location is home to the follwowing sites\n", allsites)
+    print("\nThe following sites are avaialbe",available)
+    print("\n The Following Sites are reserved\n",reserved)
+    time.sleep(1)
     
 
-def reserve(): # reserve will be able to input the day they want to reserve and it will be stored in a dictionary in a file local to the program 
-    print("New Reservation ")
+def resWin():
+    global reswin
+    reswin = tkinter.Tk()
+    reswin.title("Reserve")
+    reswin.geometry("600x600")
+    reswin.configure(bg="#333333")
+    resframe = tkinter.Frame(bg="#333333")
+    rwinNewT = tkinter.Label(resframe, text="The Following Sites are avaible: ",bg = "#333333",fg = "#FFFFFF",font=("Ariel",20))
+    locX = 1
+    locY =  1
+    for site in available:
+        locX += 1
+        if locX % 2 ==0:
+            button = tkinter.Button(resframe, text=site, command=lambda site=site:[reswin.destroy(),reserve(site), sucess((site+" reserved successfully")),resWin()])# site=site ensures each button gets a unique value for site 
+            button.grid(row=2,column=locX)
+        else:
+            locX-=1
+            button = tkinter.Button(resframe, text=site, command=lambda site=site:[reswin.destroy(),reserve(site), sucess((site+" reserved successfully")),resWin()])# site=site ensures each button gets a unique value for site 
+            button.grid(row=3,column=locX)
+            locX+=1
+        
+    #error("This site is not available or des not exist")
+    rwinNewT.grid(row = 0, column = 0,columnspan=10,pady = 15)
+    resframe.pack()
+    reswin.mainloop()
+def reserve(site): # reserve will be able to input the day they want to reserve and it will be stored in a dictionary in a file local to the program 
+    available.remove(site) # add reservation to list 
+    reserved[site]=auth_usr #remove reservatio nfrom avialable 
+    print("Reserved Sites:\n" , reserved)
+    print("Available Sites:\n" , available)
+    with open("reservations.txt","a") as rezis: 
+        a = reserved[site] 
+        rezis.write('%s %s\n' % (site,a))
+        
+
+            
 
 def cancel():
     print("Cancel Reservation ")
+    breaker = True
+    while breaker == True:
+            print("\n\nThe following sites are available: \n")
+            for i in reserved:
+                print(i) 
+            deletion=input(" Which Site would you like to reserve?\n")
+            valid = reserved.get(deletion)
+            if valid is not None:
+                pass
+            else:
+                error("Please choose an available site")
+                continue
+            if deletion in reserved:
+                reserved.pop(deletion) # add reservation to list 
+                available.append(deletion) #remove reservatio nfrom avialable 
+                print("Reserved Sites:\n" , reserved)
+                print("Available Sites:\n" , available)
+                time.sleep(1)
+            else:
+                print("Please enter a valid choice")
+                continue
+            while True:
+                another = input("Would you like to cancel another reservation?\n").lower()
+                if another == "yes":
+                    break
+                elif another == "no":
+                    breaker = False
+                    break
+                else:
+                    print("Please enter a valid choice")
+                    continue
 
-def error(message):
+def error(message): # this can be called when a user makes an incorrect inout. pass the error message to this fucntion when calling it 
     errorW = tkinter.Tk()
     errorW.title("OOPS!")
     errorW.geometry("")
@@ -249,9 +336,18 @@ def error(message):
     okBut.grid(row = 1, column = 0,pady=20,padx=40)
     eframe.pack(expand = True, fill="both")
     errorW.mainloop()
+def sucess(message):
+    successW = tkinter.Tk()
+    successW.title("YAY!")
+    successW.geometry("")
+    successW.configure(bg = "#333333")
+    sframe = tkinter.Frame(bg = "#333333")
 
+    successlab= tkinter.Label(sframe, text = message,bg = "#333333",fg = "#FFFFFF", font=("Ariel",20))
+    okBut = tkinter.Button(sframe, text = "Back.",command= successW.destroy)
+
+    successlab.grid(row = 0, column = 0,columnspan= 2, sticky = "news",pady=20,padx = 30)
+    okBut.grid(row = 1, column = 0,pady=20,padx=40)
+    sframe.pack(expand = True, fill="both")
+    successW.mainloop()
 welcome()
-
-'''
-    
-'''
