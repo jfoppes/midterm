@@ -1,3 +1,4 @@
 site3 jfopp001
 site7 jfopp001
 site6 time
+megasite jfopp001

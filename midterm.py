@@ -254,18 +254,16 @@ def view(): #
     viewWinT2 = tkinter.Label(viewFrame, text="These sites are avaible for reservation:")
     viewWinT2.grid(row=4)
     locX = 1
-    locY =  1
-    for key in reserved:
-        locX += 1
-        button = tkinter.Button(viewFrame, text=key)
+    for key in reserved: #create button for each key in reserved sites
+        locX += 1 # increate the button location number by 1 so thye odnt overlap 
+        button = tkinter.Label(viewFrame, text=key, bg="#696969", padx=10)
         button.grid(row=2,column=locX)
     locX = 1
-    
     for site in available:
         locX += 1
-        button = tkinter.Button(viewFrame, text=site)
+        button = tkinter.Label(viewFrame, text=site,bg="#696969", padx=10)
         button.grid(row=6,column=locX)
-    viewBack = tkinter.Button(viewFrame, text="Back",command=lambda:[viewWin.destroy(),loby()])
+    viewBack = tkinter.Button(viewFrame, text="Back", bg="#696969", command=lambda:[viewWin.destroy(),loby()])
     viewBack.grid(row = 8,column=0)
     viewFrame.pack()
     viewWin.mainloop()
@@ -312,8 +310,7 @@ def reserve(site): # reserve will be able to input the day they want to reserve 
         a = reserved[site] 
         rezis.write('%s %s\n' % (site,a))
         
-
-            
+       
 def cancelWin():
     canWin= tkinter.Tk()
     canWin.title("Cancel")
@@ -321,7 +318,6 @@ def cancelWin():
     canWin.configure(bg="#333333")
     canFrame = tkinter.Frame(bg="#333333")
     canT = tkinter.Label(canFrame,text="You have reserved the following sites:")
-    
     locX = 1
     for key,value in reserved.items():
         if value==auth_usr: # if the site is reserved under the name of the currently loged in user
@@ -361,24 +357,21 @@ def error(message): # this can be called when a user makes an incorrect inout. p
     errorW.geometry("")
     errorW.configure(bg = "#333333")
     eframe = tkinter.Frame(bg = "#333333")
-
     errorlab= tkinter.Label(eframe, text = message,bg = "#333333",fg = "#FFFFFF", font=("Ariel",20))
     okBut = tkinter.Button(eframe, text = "Try again.",command= errorW.destroy)
-
     errorlab.grid(row = 0, column = 0,columnspan= 2, sticky = "news",pady=20,padx = 30)
     okBut.grid(row = 1, column = 0,pady=20,padx=40)
     eframe.pack(expand = True, fill="both")
     errorW.mainloop()
+    
 def sucess(message):
     successW = tkinter.Tk()
     successW.title("YAY!")
     successW.geometry("")
     successW.configure(bg = "#333333")
     sframe = tkinter.Frame(bg = "#333333")
-
     successlab= tkinter.Label(sframe, text = message,bg = "#333333",fg = "#FFFFFF", font=("Ariel",20))
     okBut = tkinter.Button(sframe, text = "Back.",command= successW.destroy)
-
     successlab.grid(row = 0, column = 0,columnspan= 2, sticky = "news",pady=20,padx = 30)
     okBut.grid(row = 1, column = 0,pady=20,padx=40)
     sframe.pack(expand = True, fill="both")
