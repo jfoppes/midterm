@@ -35,8 +35,8 @@ with open("reservations.txt", "r") as rezis: #Import reserved sites list from fi
         line = line.rstrip()
         (s,u) = line.split(" ", 1)
         reserved[(s)]=u # update site dictionary with site as key and person who reved as value
-available = list(set(allsites) - set(reserved.values())) #the diffenrce between all sites and reserved sites is avaible sites      
- 
+available = list(set(allsites) - set(reserved.keys())) #the diffenrce between all sites and reserved sites is avaible sites      
+
 
 def loby():
     lobyW = tkinter.Tk()
@@ -46,9 +46,9 @@ def loby():
     lobframe = tkinter.Frame(bg = "#333333")
 
     lobLab = tkinter.Label(lobframe, text = ("Hello "+ auth_usrInfo['first']+"!\n\nWelcome to CampRezi,\n Login or Make an account"),bg = "#333333",fg = "#FFFFFF", font=("Ariel",20))
-    lobBut1 = tkinter.Button(lobframe, text = "View Available Sites", bg = "#000000",command = view)
+    lobBut1 = tkinter.Button(lobframe, text = "View Available Sites", bg = "#000000",command=lambda:[lobyW.destroy(),view()])
     lobBut2 = tkinter.Button(lobframe, text = "New Reservation",command=lambda:[lobyW.destroy(), resWin()])
-    lobBut3 = tkinter.Button(lobframe, text = "Cancel Reservation",command= cancel)
+    lobBut3 = tkinter.Button(lobframe, text = "Cancel Reservation",command= lambda:[lobyW.destroy(),cancelWin()])
     back = tkinter.Button(lobframe, text = "Back", command=lambda:[lobyW.destroy(),welcome()])
     
     lobLab.grid(row = 0, column = 0,columnspan= 2, sticky = "news",pady=40)
@@ -61,7 +61,6 @@ def loby():
 
 def welcome(): # User greeted with login or create new account option 
     print("\n\nCamp Rezi")
-    print(allsites)
     global auth_usr 
     global auth_usrInfo
     auth_usr = ""
@@ -244,6 +243,32 @@ def createUsr(first,last,num,un,pasw):  # these variables are passed to this fuc
 
 '''User will be able to view available sites and choose one to reserve, or cancel a reservation '''
 def view(): # 
+    print("Availvbale \n",available,"\nreserved\n",reserved)
+    viewWin = tkinter.Tk()
+    viewWin.title("View Sites & Reservations ")
+    viewWin.geometry("900x600")
+    viewWin.configure(bg="#333333")
+    viewFrame = tkinter.Frame(bg="#333333")
+    viewWinT = tkinter.Label(viewFrame,text="The Following Sites are reserved:")
+    viewWinT.grid(row=0)
+    viewWinT2 = tkinter.Label(viewFrame, text="These sites are avaible for reservation:")
+    viewWinT2.grid(row=4)
+    locX = 1
+    locY =  1
+    for key in reserved:
+        locX += 1
+        button = tkinter.Button(viewFrame, text=key)
+        button.grid(row=2,column=locX)
+    locX = 1
+    
+    for site in available:
+        locX += 1
+        button = tkinter.Button(viewFrame, text=site)
+        button.grid(row=6,column=locX)
+    viewBack = tkinter.Button(viewFrame, text="Back",command=lambda:[viewWin.destroy(),loby()])
+    viewBack.grid(row = 8,column=0)
+    viewFrame.pack()
+    viewWin.mainloop()
     print("View Reservations:")
     print("\n Our location is home to the follwowing sites\n", allsites)
     print("\nThe following sites are avaialbe",available)
@@ -258,7 +283,7 @@ def resWin():
     reswin.geometry("600x600")
     reswin.configure(bg="#333333")
     resframe = tkinter.Frame(bg="#333333")
-    rwinNewT = tkinter.Label(resframe, text="The Following Sites are avaible: ",bg = "#333333",fg = "#FFFFFF",font=("Ariel",20))
+    rwinNewT = tkinter.Label(resframe, text="Choose one of the following sites to reserve: ",bg = "#333333",fg = "#FFFFFF",font=("Ariel",20))
     locX = 1
     locY =  1
     for site in available:
@@ -274,6 +299,8 @@ def resWin():
         
     #error("This site is not available or des not exist")
     rwinNewT.grid(row = 0, column = 0,columnspan=10,pady = 15)
+    rwinBack = tkinter.Button(resframe, text="back",command=lambda:[reswin.destroy(),loby()])
+    rwinBack.grid(row=5)
     resframe.pack()
     reswin.mainloop()
 def reserve(site): # reserve will be able to input the day they want to reserve and it will be stored in a dictionary in a file local to the program 
@@ -287,40 +314,46 @@ def reserve(site): # reserve will be able to input the day they want to reserve 
         
 
             
-
-def cancel():
+def cancelWin():
+    canWin= tkinter.Tk()
+    canWin.title("Cancel")
+    canWin.geometry("900x600")
+    canWin.configure(bg="#333333")
+    canFrame = tkinter.Frame(bg="#333333")
+    canT = tkinter.Label(canFrame,text="You have reserved the following sites:")
+    
+    locX = 1
+    for key,value in reserved.items():
+        if value==auth_usr: # if the site is reserved under the name of the currently loged in user
+            button=tkinter.Button(canFrame,text=key,command= lambda key=key,value=value:[canWin.destroy(),cancel(key),sucess("Reservation for ",value, "removed.",cancelWin())])
+            locX += 1
+            button.grid(row=2,column=locX)
+    canBack = tkinter.Button(canFrame,text="back", command=lambda:[canWin.destroy(),loby()])
+    canT.grid(row=0)
+    canBack.grid(row=5)
+    canFrame.pack()
+    canWin.mainloop()
+    
+def cancel(deletion):
     print("Cancel Reservation ")
-    breaker = True
-    while breaker == True:
-            print("\n\nThe following sites are available: \n")
-            for i in reserved:
-                print(i) 
-            deletion=input(" Which Site would you like to reserve?\n")
-            valid = reserved.get(deletion)
-            if valid is not None:
-                pass
-            else:
-                error("Please choose an available site")
-                continue
-            if deletion in reserved:
-                reserved.pop(deletion) # add reservation to list 
-                available.append(deletion) #remove reservatio nfrom avialable 
-                print("Reserved Sites:\n" , reserved)
-                print("Available Sites:\n" , available)
-                time.sleep(1)
-            else:
-                print("Please enter a valid choice")
-                continue
-            while True:
-                another = input("Would you like to cancel another reservation?\n").lower()
-                if another == "yes":
-                    break
-                elif another == "no":
-                    breaker = False
-                    break
-                else:
-                    print("Please enter a valid choice")
-                    continue
+    print(deletion)
+    valid = reserved.get(deletion)
+    if valid is not None:
+        pass
+    else:
+        error("Please choose an available site")
+    if deletion in reserved:
+        reserved.pop(deletion) # add reservation to list 
+        available.append(deletion) #remove reservatio nfrom avialable 
+        with open("reservations.txt","w") as rezis: # writes updated reservations dict to reservations file
+            for key,value in reserved.items():
+                rezis.write('%s %s\n' % (key,value))
+        print("Reserved Sites:\n" , reserved)
+        print("Available Sites:\n" , available)
+        time.sleep(1)
+        
+    else:
+        error("Please enter a valid choice")
 
 def error(message): # this can be called when a user makes an incorrect inout. pass the error message to this fucntion when calling it 
     errorW = tkinter.Tk()

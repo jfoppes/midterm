@@ -1,6 +1,3 @@
-Site UserName
-megasite time
-site6 time
-site6 time
-site6 time
+site3 jfopp001
+site7 jfopp001
 site6 time
